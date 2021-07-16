@@ -90,19 +90,28 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 func addBook(w http.ResponseWriter, r *http.Request) {
 
 	var book Book
-	var bookID int
 
 	json.NewDecoder(r.Body).Decode(&book)
 
-	err := db.QueryRow("INSERT INTO books (title, author, year) VALUES ($1, $2, $3) RETURNING id;",
-		book.Title, book.Author, book.Year).Scan(&bookID)
-	logFatal(err)
+	db.QueryRow("INSERT INTO books (title, author, year) VALUES ($1, $2, $3);",
+		book.Title, book.Author, book.Year)
 
-	json.NewEncoder(w).Encode(bookID)
+	json.NewEncoder(w).Encode(book)
 }
 
 func updateBook(w http.ResponseWriter, r *http.Request) {
+
+	var book Book
+	json.NewDecoder(r.Body).Decode(&book)
+	db.Exec("UPDATE books SET title = $1, author = $2, year = $3 WHERE id = $4", &book.Title, &book.Author, &book.Year, &book.ID)
+	log.Println(book)
+	json.NewEncoder(w).Encode(book)
 }
 
 func removeBook(w http.ResponseWriter, r *http.Request) {
+
+	var book Book
+	json.NewDecoder(r.Body).Decode(&book)
+	params := mux.Vars(r)
+	db.Exec("DELETE FROM books WHERE id = $1", params["id"])
 }
