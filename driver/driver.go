@@ -3,6 +3,7 @@ package driver
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+	"github.com/subosito/gotenv"
 	"log"
 	"os"
 )
@@ -16,6 +17,7 @@ func logFatal(err error) {
 }
 
 func ConnectDB() *sqlx.DB {
+	gotenv.Load()
 	pgUrl, err := pq.ParseURL(os.Getenv("ELEPHANTSQL_URL"))
 	logFatal(err)
 

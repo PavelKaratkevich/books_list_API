@@ -1,33 +1,27 @@
 package app
 
 import (
-	"books-list/controllers"
 	"books-list/driver"
+	"books-list/handlers"
+	bookRepository "books-list/repository/book"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/jmoiron/sqlx"
-	"github.com/subosito/gotenv"
 	"log"
 	"net/http"
 )
 
-var db *sqlx.DB
-
-func init() {
-	gotenv.Load()
-}
-
 func StartApp() {
-	db = driver.ConnectDB()
-	controller := controllers.Controller{}
+	db := driver.ConnectDB()
+	bookRepositoryDb := bookRepository.NewBookRepositoryDb(db)
+	bookHandler := handlers.NewBooksService(bookRepositoryDb)
 
 	router := mux.NewRouter()
 
-	router.HandleFunc("/books", controller.GetBooks(db)).Methods("GET")
-	router.HandleFunc("/books/{id}", controller.GetBook(db)).Methods("GET")
-	router.HandleFunc("/books", controller.AddBook(db)).Methods("POST")
-	router.HandleFunc("/books", controller.UpdateBook(db)).Methods("PUT")
-	router.HandleFunc("/books/{id}", controller.RemoveBook(db)).Methods("DELETE")
+	router.HandleFunc("/books", bookHandler.GetBooks).Methods("GET")
+	router.HandleFunc("/books/{id}", bookHandler.GetBook).Methods("GET")
+	router.HandleFunc("/books", bookHandler.AddBook).Methods("POST")
+	router.HandleFunc("/books", bookHandler.UpdateBook).Methods("PUT")
+	router.HandleFunc("/books/{id}", bookHandler.RemoveBook).Methods("DELETE")
 
 	fmt.Println("Server is running at port 8000")
 	log.Fatal(http.ListenAndServe(":8000", router))
