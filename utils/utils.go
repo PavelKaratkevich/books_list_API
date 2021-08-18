@@ -1,12 +1,12 @@
 package utils
 
 import (
-	"books-list/domain"
+	"books-list/err"
 	"encoding/json"
 	"net/http"
 )
 
-func SendError(w http.ResponseWriter, status int, err domain.Error) {
+func SendError(w http.ResponseWriter, status int, err err.Error) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(err)

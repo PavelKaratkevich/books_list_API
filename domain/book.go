@@ -35,6 +35,6 @@ type BookRepository interface {
 	GetBooks(books []Book) ([]Book, error)
 	GetBook(book Book, id int) (Book, error)
 	AddBook(book Book) (int, error)
-	UpdateBook(book dto.UpdateBookRequest) (int64, error)
+	UpdateBook(book Book) (int64, error)
 	RemoveBook(id int) (int64, error)
 }

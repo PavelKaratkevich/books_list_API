@@ -2,7 +2,6 @@ package bookRepository
 
 import (
 	"books-list/domain"
-	"books-list/dto"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -43,13 +42,7 @@ func (b BookRepositoryDb) AddBook(book domain.Book) (int, error) {
 	return id, nil
 }
 
-func (b BookRepositoryDb) UpdateBook(updateBookRequest dto.UpdateBookRequest) (int64, error) {
-	book := domain.Book{
-		ID: updateBookRequest.Id,
-		Title: updateBookRequest.Title,
-		Author: updateBookRequest.Author,
-		Year: updateBookRequest.Year,
-	}
+func (b BookRepositoryDb) UpdateBook(book domain.Book) (int64, error) {
 	result, err := b.db.Exec("update books_list set title=$1, author=$2, year=$3 where id=$4 RETURNING id",
 		&book.Title, &book.Author, &book.Year, &book.ID)
 	if err != nil {
