@@ -2,6 +2,8 @@ package bookRepository
 
 import (
 	"books-list/domain"
+	"books-list/err"
+	"database/sql"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -10,23 +12,33 @@ type BookRepositoryDb struct {
 	db *sqlx.DB
 }
 
-func (b BookRepositoryDb) GetBooks(books []domain.Book) ([]domain.Book, error) {
+var appErr err.Error
+var books []domain.Book
+var book domain.Book
+
+func (b BookRepositoryDb) GetBooks() ([]domain.Book, *err.Error) {
 	sqlRequest := "select * from books_list"
 	err := b.db.Select(&books, sqlRequest)
 	if err != nil {
-		return nil, err
+		appErr.Message = "unexpected database error"
+		return nil, &appErr
 	}
 	return books, nil
 }
 
-func (b BookRepositoryDb) GetBook(book domain.Book, id int) (domain.Book, error) {
+func (b BookRepositoryDb) GetBook(id int) (*domain.Book, *err.Error) {
 	sqlRequest := "select * from books_list where id=$1"
-
 	err := b.db.Get(&book, sqlRequest, id)
 	if err != nil {
-		return domain.Book{}, err
+		if err == sql.ErrNoRows {
+			appErr.Message = "Book ID Not Found"
+			return nil, &appErr
+		} else {
+			appErr.Message = "Server error"
+			return nil, &appErr
+		}
 	}
-	return book, err
+	return &book, nil
 }
 
 func (b BookRepositoryDb) AddBook(book domain.Book) (int, error) {
@@ -61,10 +73,7 @@ func (b BookRepositoryDb) RemoveBook(id int) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	rowsDeleted, err := result.RowsAffected()
-	if err != nil {
-		return 0, err
-	}
+	rowsDeleted, _ := result.RowsAffected()
 	return rowsDeleted, nil
 }
 

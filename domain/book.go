@@ -2,7 +2,7 @@ package domain
 
 import (
 	"books-list/dto"
-	"net/http"
+	"books-list/err"
 )
 
 type Book struct {
@@ -22,18 +22,19 @@ func (b Book) ToDto() dto.BookResponse {
 }
 
 // Primary Port
-type BookService interface {
-	GetBooks(w http.ResponseWriter, r *http.Request)
-	GetBook(w http.ResponseWriter, r *http.Request)
-	AddBook(w http.ResponseWriter, r *http.Request)
-	UpdateBook(w http.ResponseWriter, r *http.Request)
-	RemoveBook(w http.ResponseWriter, r *http.Request)
-}
+//type BookService interface {
+//	GetBooks(w http.ResponseWriter, r *http.Request)
+//	GetBook(w http.ResponseWriter, r *http.Request)
+//	AddBook(w http.ResponseWriter, r *http.Request)
+//	UpdateBook(w http.ResponseWriter, r *http.Request)
+//	RemoveBook(w http.ResponseWriter, r *http.Request)
+//}
 
 // Secondary Port
+//go:generate mockgen -destination=../mocks/repository/mockBookRepository.go -package=domain books-list/domain BookRepository
 type BookRepository interface {
-	GetBooks(books []Book) ([]Book, error)
-	GetBook(book Book, id int) (Book, error)
+	GetBooks() ([]Book, *err.Error)
+	GetBook(int) (*Book, *err.Error)
 	AddBook(book Book) (int, error)
 	UpdateBook(book Book) (int64, error)
 	RemoveBook(id int) (int64, error)
