@@ -36,3 +36,12 @@ func (r NewBookRequest) Validate() *err.Error {
 	}
 	return nil
 }
+
+func (r UpdateBookRequest) Validate() *err.Error {
+	var err err.Error
+	if &r.Id == nil || r.Id <= 0 || r.Author == "" || r.Title == "" || r.Year == "" {
+		err.Message = "All fields should be filled in."
+		return &err
+	}
+	return nil
+}

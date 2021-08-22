@@ -4,8 +4,6 @@ import (
 	domain2 "books-list/domain"
 	"books-list/mocks/repository"
 	"strconv"
-
-	//"books-list/domain"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -25,99 +23,59 @@ func setup(t *testing.T) {
 	bh = BookHandlers{Repository: mockBookHandlers}
 }
 
-func Test_GetBooks_should_return_error(t *testing.T) {
+func Test_GetBooks_should_return_error (t *testing.T) {
 	setup(t)
-	// Arrange
+// Arrange
 	mockBookHandlers.EXPECT().GetBooks().Return(nil, &error)
 	router.HandleFunc("/books", bh.GetBooks)
 	request, _ := http.NewRequest(http.MethodGet, "/books", nil)
 
-	// Act
+// Act
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 
-	// Assert
+// Assert
 	if recorder.Code != http.StatusInternalServerError {
 		t.Error("error-error-error")
 	}
 }
 
-func Test_GetBook_should_return_error(t *testing.T) {
+func Test_GetBook_should_return_error (t *testing.T) {
 	setup(t)
-	// Arrange
+// Arrange
 	router.HandleFunc("/books/1001", bh.GetBook)
 	request, _ := http.NewRequest(http.MethodGet, "/books/1001", nil)
 	params := mux.Vars(request)
 	id, _ := strconv.Atoi(params["id"])
 	mockBookHandlers.EXPECT().GetBook(id).Return(nil, &error)
 
-	// Act
+// Act
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 
-	// Assert
+// Assert
 	if recorder.Code != http.StatusNotFound {
 		t.Error("error-error-error")
 	}
 }
 
-func Test_should_return_books(t *testing.T) {
+func Test_should_return_books (t *testing.T) {
 	setup(t)
 	dummyBooks := []domain2.Book{
-		{ID: 13,
-			Title:  "Pavel",
-			Author: "book",
-			Year:   "2021",
-		},
-		{ID: 14,
-			Author: "Lena",
-			Title:  "books",
-			Year:   "2020",
-		},
-	}
+				{	ID:     13,
+					Title:  "Pavel",
+					Author: "book",
+					Year:   "2021",
+				},
+				{	ID: 14,
+					Author: "Lena",
+					Title: "books",
+					Year: "2020",
+				},
+			}
 	mockBookHandlers.EXPECT().GetBooks().Return(dummyBooks, nil)
 	_, err := mockBookHandlers.GetBooks()
 	if err != nil {
 		t.Error("Test failed")
 	}
-
 }
-
-func Test_should_return_error(t *testing.T) {
-	setup(t)
-	mockBookHandlers.EXPECT().GetBooks().Return(nil, &error)
-	_, err := mockBookHandlers.GetBooks()
-	if err == nil {
-		t.Error("Test failed")
-	}
-
-}
-
-//func Test_GetBooks_should_return_dummyBooks (t *testing.T) {
-//	setup(t)
-////Arrange
-//	dummyBooks := []domain2.Book{
-//		{	ID:     13,
-//			Title:  "Pavel",
-//			Author: "book",
-//			Year:   "2021",
-//		},
-//		{	ID: 14,
-//			Author: "Lena",
-//			Title: "books",
-//			Year: "2020",
-//		},
-//	}
-//	router.HandleFunc("/books", bh.GetBooks)
-//	request, _ := http.NewRequest(http.MethodGet, "/books", nil)
-//	mockBookHandlers.EXPECT().GetBooks().Return(dummyBooks, &error)
-//
-//	// Act
-//	recorder := httptest.NewRecorder()
-//	router.ServeHTTP(recorder, request)
-//
-//	// Assert
-//	if recorder.Code != http.StatusOK {
-//		t.Error("Failed while testing the status code")
-//	}
-//}

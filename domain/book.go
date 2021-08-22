@@ -35,7 +35,7 @@ func (b Book) ToDto() dto.BookResponse {
 type BookRepository interface {
 	GetBooks() ([]Book, *err.Error)
 	GetBook(int) (*Book, *err.Error)
-	AddBook(book Book) (int, error)
-	UpdateBook(book Book) (int64, error)
-	RemoveBook(id int) (int64, error)
+	AddBook(book Book) (int, *err.Error)
+	UpdateBook(book Book) (int, *err.Error)
+	RemoveBook(id int) (int, *err.Error)
 }

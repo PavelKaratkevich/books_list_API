@@ -60,8 +60,8 @@ func (c BookHandlers) AddBook(w http.ResponseWriter, r *http.Request) {
 		var bookResponse dto.NewBookResponse
 		id, err := c.Repository.AddBook(book)
 		if err != nil {
-			error.Message = "Server error"
-			utils.SendError(w, http.StatusInternalServerError, error) //500
+			//error.Message = "Server error"
+			utils.SendError(w, http.StatusInternalServerError, error)
 			return
 		}
 		bookResponse.Id = id
@@ -72,10 +72,10 @@ func (c BookHandlers) AddBook(w http.ResponseWriter, r *http.Request) {
 func (c BookHandlers) UpdateBook(w http.ResponseWriter, r *http.Request) {
 	var updateBookRequest dto.UpdateBookRequest
 	json.NewDecoder(r.Body).Decode(&updateBookRequest)
-	if &updateBookRequest.Id == nil || updateBookRequest.Id <= 0 || updateBookRequest.Author == "" || updateBookRequest.Title == "" || updateBookRequest.Year == "" {
-		error.Message = "All fields should be filled in."
-		utils.SendError(w, http.StatusBadRequest, error)
-	} else {
+	if errs := updateBookRequest.Validate(); errs != nil {
+		utils.SendError(w, http.StatusBadRequest, *errs)
+		return
+	}
 		book := domain.Book{
 			ID:     updateBookRequest.Id,
 			Title:  updateBookRequest.Title,
@@ -92,7 +92,6 @@ func (c BookHandlers) UpdateBook(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-}
 
 func (c BookHandlers) RemoveBook(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
